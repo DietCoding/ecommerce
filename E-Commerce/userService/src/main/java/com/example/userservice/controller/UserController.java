@@ -34,8 +34,7 @@ public class UserController {
     //public String status(HttpServletRequest request){
     public String status(){
      // return String.format("It's Working in User Service on Port %s", request.getServerPort());
-        return String.format("It's Working in User Service on Port %s", env.getProperty("local.server.port"));
-
+        return String.format("It's Working in User Service on Port %s", env.getProperty("Config.message"));
     }
 
     @GetMapping("/welcome")
@@ -72,5 +71,10 @@ public class UserController {
         ResponseUser returnValue = new ModelMapper().map(userDto, ResponseUser.class);
 
         return ResponseEntity.status(HttpStatus.OK).body(returnValue);
+    }
+
+    @GetMapping("/users/catalogs/{catalogId}")
+    public int getCatalogsView(@PathVariable("catalogId") String catalogId){
+        return userService.getCatalogsView(catalogId);
     }
 }

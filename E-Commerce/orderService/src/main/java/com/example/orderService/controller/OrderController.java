@@ -1,10 +1,12 @@
-package com.example.catalogservice.controller;
+package com.example.orderService.controller;
 
-import com.example.catalogservice.dto.OrderDto;
-import com.example.catalogservice.jpa.OrderEntity;
-import com.example.catalogservice.service.OrderService;
-import com.example.catalogservice.vo.RequestOrder;
-import com.example.catalogservice.vo.ResponseOrder;
+import com.example.orderService.dto.OrderDto;
+import com.example.orderService.jpa.OrderEntity;
+import com.example.orderService.service.KafkaProducer;
+import com.example.orderService.service.OrderService;
+import com.example.orderService.vo.RequestOrder;
+import com.example.orderService.vo.ResponseOrder;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,17 +20,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/catalog-service")
+@RequiredArgsConstructor
+@RequestMapping("/order-service")
 public class OrderController
 {
     private Environment env;
-    OrderService orderService;
-
-    @Autowired
-    public OrderController(Environment env, OrderService orderService){
-        this.env = env;
-        this.orderService = orderService;
-    }
+    private final OrderService orderService;
+    private final KafkaProducer kafkaProducer;
 
     @GetMapping("/health_check")
     public String status(HttpServletRequest request) {
@@ -46,7 +44,7 @@ public class OrderController
         OrderDto createDto = orderService.createOrder(orderDto);
         ResponseOrder returnValue = mapper.map(createDto, ResponseOrder.class);
 
-        // ResponseUser responseUser = mapper.map(userDto, ResponseUser.class);
+        kafkaProducer.send("example-order-topic",orderDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(returnValue);
     }
 

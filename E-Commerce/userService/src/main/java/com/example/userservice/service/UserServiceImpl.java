@@ -1,17 +1,24 @@
 package com.example.userservice.service;
 
 import com.example.userservice.dto.UserDto;
+import com.example.userservice.jpa.CatalogCount;
+import com.example.userservice.jpa.CatalogCountRepository;
 import com.example.userservice.jpa.UserEntity;
 import com.example.userservice.jpa.UserRepository;
 import com.example.userservice.vo.RequestUser;
 import com.example.userservice.vo.ResponseOrder;
 import com.example.userservice.vo.ResponseUser;
+import com.netflix.discovery.converters.Auto;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.spi.MatchingStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,10 +40,15 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final CatalogCountRepository catalogCountRepository;
+
+    @Autowired
+    BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public UserDto createUser(UserDto userDto) {
         userDto.setUserId(UUID.randomUUID().toString());
+        userDto.setEncryptedPwd(passwordEncoder.encode(userDto.getPwd()));
         ModelMapper mapper = new ModelMapper();
         // 설정 정보가 딱 맞아떨어져야지 변환 가능
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -65,6 +77,31 @@ public class UserServiceImpl implements UserService {
     public Iterable<UserEntity> getUserByAll(){
 
         return userRepository.findAll(); //조건없이 전체 데이터 반환
+    }
+
+    @Override
+    public UserDto getUserDetailsByEmail(String email){
+        UserEntity userEntity = userRepository.findByEmail(email);
+
+        return new ModelMapper().map(userEntity, UserDto.class);
+    }
+
+    @Override
+    public CatalogCount findCatalogCountByCatalogId(int catalogId) {
+        return catalogCountRepository.findByCatalogId(catalogId);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username)
+        throws UsernameNotFoundException{
+        UserEntity userEntity = userRepository.findByEmail(username);
+
+        if(userEntity == null)
+            throw new UsernameNotFoundException(username);
+
+        return new User(userEntity.getEmail(),userEntity.getEncryptedPwd(),
+                true,true,true,true,
+                new ArrayList<>());
     }
 }
 

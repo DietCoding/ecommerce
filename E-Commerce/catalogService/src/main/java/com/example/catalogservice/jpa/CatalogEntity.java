@@ -12,7 +12,7 @@ import java.util.Date;
 public class CatalogEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 120, unique = true)
@@ -23,8 +23,10 @@ public class CatalogEntity {
     private Integer stock;
     @Column(nullable = false)
     private Integer unitPrice;
+    @Column(nullable = false)
+    private Integer views;
 
     @Column(nullable = false, updatable = false, insertable = false)
-    @ColumnDefault( value = "CURRENT_TIMESTAMP")
+    @ColumnDefault(value = "CURRENT_TIMESTAMP")
     private Date createdAt;
 }

@@ -1,4 +1,4 @@
-package com.example.catalogservice.dto;
+package com.example.orderService.dto;
 
 import lombok.Data;
 

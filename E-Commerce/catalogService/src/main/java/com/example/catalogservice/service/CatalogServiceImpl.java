@@ -18,19 +18,28 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class CatalogServiceImpl implements CatalogService {
 
-    CatalogRepository repository;
+    CatalogRepository catalogRepository;
     Environment env;
 
     @Autowired
-    public CatalogServiceImpl(CatalogRepository repository,
+    public CatalogServiceImpl(CatalogRepository catalogRepository,
                               Environment env){
-        this.repository = repository;
+        this.catalogRepository = catalogRepository;
         this.env = env;
     }
     @Override
     public Iterable<CatalogEntity> getAllCatalogs(){
-        return repository.findAll(); //조건없이 전체 데이터 반환
+        return catalogRepository.findAll(); //조건없이 전체 데이터 반환
     }
+
+    @Override
+    public CatalogEntity findByCatalogId(String catalogId){
+        CatalogEntity catalogEntity = catalogRepository.findByProductId(catalogId);
+        catalogEntity.setViews(catalogEntity.getViews() + 1);
+        catalogRepository.save(catalogEntity);
+        return catalogRepository.findByProductId(catalogId);
+    }
+
 }
 
 

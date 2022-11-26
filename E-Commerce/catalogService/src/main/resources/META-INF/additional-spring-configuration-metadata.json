@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "spring.jpa.hibernate.defer-datasource-initialization",
+      "type": "java.lang.String",
+      "description": "Description for spring.jpa.hibernate.defer-datasource-initialization."
+  }
+] }

@@ -1,4 +1,4 @@
-package com.example.catalogservice.jpa;
+package com.example.orderService.jpa;
 
 import org.springframework.data.repository.CrudRepository;
 
